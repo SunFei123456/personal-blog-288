@@ -1,0 +1,42 @@
+/* TailwindCSS 导入 */
+@import "tailwindcss";
+
+/**
+ * 全局样式配置
+ * - 基础样式重置
+ * - 自定义 CSS 变量
+ */
+
+/* 基础样式 */
+body {
+  @apply bg-gray-50 text-gray-900 antialiased;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
+
+/* 链接默认样式 */
+a {
+  @apply text-blue-600 hover:text-blue-800 transition-colors;
+}
+
+/* 应用容器 */
+#app {
+  @apply min-h-screen;
+}
