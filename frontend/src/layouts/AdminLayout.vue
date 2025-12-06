@@ -28,14 +28,14 @@ const userStore = useUserStore()
  */
 const menuItems = computed(() => {
   const items = [
-    { path: '/admin', name: '控制台', icon: LayoutDashboard },
     { path: '/admin/articles', name: '文章管理', icon: FileText },
     { path: '/admin/categories', name: '分类管理', icon: FolderOpen },
     { path: '/admin/tags', name: '标签管理', icon: Tags },
   ]
 
-  // 管理员才能看到用户管理
+  // 管理员才能看到控制台和用户管理
   if (userStore.isAdmin) {
+    items.unshift({ path: '/admin', name: '控制台', icon: LayoutDashboard })
     items.push({ path: '/admin/users', name: '用户管理', icon: Users })
   }
 

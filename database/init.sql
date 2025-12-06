@@ -153,7 +153,7 @@ INSERT INTO articles (title, content, summary, status, user_id, category_id) VAL
 - MySQL 8.0
 
 欢迎使用！', 
-'这是一个基于 Vue3 + FastAPI + MySQL 构建的个人博客系统。',
+'这是一个 的个人博客系统。',
 'published', 1, 1)
 ON DUPLICATE KEY UPDATE title = title;
 

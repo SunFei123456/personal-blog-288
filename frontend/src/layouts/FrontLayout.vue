@@ -85,8 +85,8 @@ function handleLogout() {
     <!-- 底部版权信息 -->
     <footer class="bg-gray-100 border-t border-gray-200 py-6">
       <div class="max-w-6xl mx-auto px-4 text-center text-gray-500 text-sm">
-        <p>© 2024 个人博客系统. All rights reserved.</p>
-        <p class="mt-1">基于 Vue3 + FastAPI + MySQL 构建</p>
+        <p>© 2025 个人博客系统. All rights reserved.</p>
+        <p class="mt-1"> </p>
       </div>
     </footer>
   </div>

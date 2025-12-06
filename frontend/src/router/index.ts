@@ -68,7 +68,7 @@ const routes: RouteRecordRaw[] = [
         path: '',
         name: 'AdminDashboard',
         component: () => import('@/views/admin/Dashboard.vue'),
-        meta: { title: '控制台' },
+        meta: { title: '控制台', requiresAdmin: true },
       },
       {
         path: 'articles',
@@ -156,7 +156,7 @@ router.beforeEach(async (to, _from, next) => {
 
   // 需要管理员权限的页面
   if (to.meta.requiresAdmin && !userStore.isAdmin) {
-    return next('/admin')
+    return next('/admin/articles')
   }
 
   next()
