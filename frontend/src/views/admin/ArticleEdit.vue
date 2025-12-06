@@ -79,8 +79,9 @@ async function fetchArticle() {
  */
 async function fetchCategories() {
   try {
-    // 只获取当前用户的分类
-    categories.value = await getCategoriesApi(currentUserId.value)
+    // 管理员获取所有分类，普通用户只获取自己的分类
+    const userId = userStore.isAdmin ? undefined : currentUserId.value
+    categories.value = await getCategoriesApi(userId)
   } catch (error) {
     console.error('获取分类列表失败:', error)
   }
@@ -91,8 +92,9 @@ async function fetchCategories() {
  */
 async function fetchTags() {
   try {
-    // 只获取当前用户的标签
-    tags.value = await getTagsApi(currentUserId.value)
+    // 管理员获取所有标签，普通用户只获取自己的标签
+    const userId = userStore.isAdmin ? undefined : currentUserId.value
+    tags.value = await getTagsApi(userId)
   } catch (error) {
     console.error('获取标签列表失败:', error)
   }

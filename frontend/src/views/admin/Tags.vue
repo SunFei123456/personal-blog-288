@@ -29,8 +29,9 @@ const creating = ref(false)
 async function fetchTags() {
   loading.value = true
   try {
-    // 只获取当前用户的标签
-    tags.value = await getTagsApi(currentUserId.value)
+    // 管理员获取所有标签，普通用户只获取自己的标签
+    const userId = userStore.isAdmin ? undefined : currentUserId.value
+    tags.value = await getTagsApi(userId)
   } catch (error) {
     console.error('获取标签列表失败:', error)
   } finally {

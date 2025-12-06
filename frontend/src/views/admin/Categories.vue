@@ -36,8 +36,9 @@ const form = reactive({
 async function fetchCategories() {
   loading.value = true
   try {
-    // 只获取当前用户的分类
-    categories.value = await getCategoriesApi(currentUserId.value)
+    // 管理员获取所有分类，普通用户只获取自己的分类
+    const userId = userStore.isAdmin ? undefined : currentUserId.value
+    categories.value = await getCategoriesApi(userId)
   } catch (error) {
     console.error('获取分类列表失败:', error)
   } finally {

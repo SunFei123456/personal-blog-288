@@ -8,7 +8,7 @@
 
 import { ref, onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { getMyArticlesApi, deleteArticleApi } from '@/api/article'
+import { getMyArticlesApi, getArticlesApi, deleteArticleApi } from '@/api/article'
 import { useUserStore } from '@/stores/user'
 import type { Article, ArticleStatus } from '@/types'
 import { Plus, Edit, Trash2, Eye, Calendar, Filter, FileText } from 'lucide-vue-next'
@@ -40,7 +40,12 @@ async function fetchArticles() {
     if (filterStatus.value) {
       params.status = filterStatus.value
     }
-    const response = await getMyArticlesApi(params)
+    
+    // 管理员获取所有文章，普通用户只获取自己的文章
+    const response = userStore.isAdmin 
+      ? await getArticlesApi(params)
+      : await getMyArticlesApi(params)
+    
     articles.value = response.items
   } catch (error) {
     console.error('获取文章列表失败:', error)

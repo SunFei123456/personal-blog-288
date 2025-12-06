@@ -58,12 +58,18 @@ async function fetchArticles() {
   
   loading.value = true
   try {
-    const response = await getArticlesApi({
+    const params: any = {
       page: currentPage.value,
       page_size: 10,
       status: 'published',
-      user_id: currentUserId.value, // 只获取当前用户的文章
-    })
+    }
+    
+    // 普通用户只看自己的文章，管理员看所有文章
+    if (!userStore.isAdmin) {
+      params.user_id = currentUserId.value
+    }
+    
+    const response = await getArticlesApi(params)
     articles.value = response.items
     totalPages.value = response.total_pages
   } catch (error) {
@@ -84,7 +90,9 @@ async function fetchCategories() {
   }
   
   try {
-    categories.value = await getCategoriesApi(currentUserId.value)
+    // 普通用户只看自己的分类，管理员看所有分类
+    const userId = userStore.isAdmin ? undefined : currentUserId.value
+    categories.value = await getCategoriesApi(userId)
   } catch (error) {
     console.error('获取分类列表失败:', error)
   }
@@ -101,7 +109,9 @@ async function fetchTags() {
   }
   
   try {
-    tags.value = await getTagsApi(currentUserId.value)
+    // 普通用户只看自己的标签，管理员看所有标签
+    const userId = userStore.isAdmin ? undefined : currentUserId.value
+    tags.value = await getTagsApi(userId)
   } catch (error) {
     console.error('获取标签列表失败:', error)
   }
