@@ -12,7 +12,6 @@ import { computed } from 'vue'
 import {
   LayoutDashboard,
   FileText,
-  MessageSquare,
   FolderOpen,
   Tags,
   Users,
@@ -31,7 +30,6 @@ const menuItems = computed(() => {
   const items = [
     { path: '/admin', name: '控制台', icon: LayoutDashboard },
     { path: '/admin/articles', name: '文章管理', icon: FileText },
-    { path: '/admin/comments', name: '评论管理', icon: MessageSquare },
     { path: '/admin/categories', name: '分类管理', icon: FolderOpen },
     { path: '/admin/tags', name: '标签管理', icon: Tags },
   ]

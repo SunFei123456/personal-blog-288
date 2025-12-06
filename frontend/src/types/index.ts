@@ -141,27 +141,6 @@ export interface TagRequest {
   name: string
 }
 
-// ==================== 评论相关类型 ====================
-
-/**
- * 评论信息接口
- */
-export interface Comment {
-  id: number
-  content: string
-  article_id: number
-  user_id: number
-  user?: User
-  created_at: string
-}
-
-/**
- * 创建评论请求参数
- */
-export interface CommentRequest {
-  content: string
-}
-
 // ==================== 通用类型 ====================
 
 /**
@@ -190,6 +169,5 @@ export interface ApiResponse<T = any> {
 export interface Statistics {
   user_count: number
   article_count: number
-  comment_count: number
   view_count: number
 }

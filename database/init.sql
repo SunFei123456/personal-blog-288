@@ -32,9 +32,13 @@ CREATE TABLE IF NOT EXISTS users (
 -- =====================================================
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY COMMENT '分类ID',
-    name VARCHAR(50) NOT NULL UNIQUE COMMENT '分类名称',
+    name VARCHAR(50) NOT NULL COMMENT '分类名称',
     description VARCHAR(255) DEFAULT NULL COMMENT '分类描述',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    user_id INT NOT NULL COMMENT '所属用户ID',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    INDEX idx_user_id (user_id),
+    UNIQUE KEY uq_category_user_name (user_id, name),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='分类表';
 
 -- =====================================================
@@ -42,7 +46,11 @@ CREATE TABLE IF NOT EXISTS categories (
 -- =====================================================
 CREATE TABLE IF NOT EXISTS tags (
     id INT AUTO_INCREMENT PRIMARY KEY COMMENT '标签ID',
-    name VARCHAR(50) NOT NULL UNIQUE COMMENT '标签名称'
+    name VARCHAR(50) NOT NULL COMMENT '标签名称',
+    user_id INT NOT NULL COMMENT '所属用户ID',
+    INDEX idx_user_id (user_id),
+    UNIQUE KEY uq_tag_user_name (user_id, name),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='标签表';
 
 -- =====================================================
@@ -79,20 +87,6 @@ CREATE TABLE IF NOT EXISTS article_tags (
     FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章标签关联表';
 
--- =====================================================
--- 评论表
--- =====================================================
-CREATE TABLE IF NOT EXISTS comments (
-    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '评论ID',
-    content TEXT NOT NULL COMMENT '评论内容',
-    article_id INT NOT NULL COMMENT '文章ID',
-    user_id INT NOT NULL COMMENT '用户ID',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    INDEX idx_article_id (article_id),
-    INDEX idx_user_id (user_id),
-    FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='评论表';
 
 -- =====================================================
 -- 初始数据
@@ -109,21 +103,21 @@ INSERT INTO users (username, email, password_hash, role) VALUES
 ('user', 'user@example.com', '$2b$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user')
 ON DUPLICATE KEY UPDATE username = username;
 
--- 插入示例分类
-INSERT INTO categories (name, description) VALUES 
-('技术', '技术相关文章'),
-('生活', '生活随笔'),
-('学习', '学习笔记')
+-- 插入示例分类（绑定到管理员用户）
+INSERT INTO categories (name, description, user_id) VALUES 
+('技术', '技术相关文章', 1),
+('生活', '生活随笔', 1),
+('学习', '学习笔记', 1)
 ON DUPLICATE KEY UPDATE name = name;
 
--- 插入示例标签
-INSERT INTO tags (name) VALUES 
-('Vue'),
-('Python'),
-('FastAPI'),
-('MySQL'),
-('前端'),
-('后端')
+-- 插入示例标签（绑定到管理员用户）
+INSERT INTO tags (name, user_id) VALUES 
+('Vue', 1),
+('Python', 1),
+('FastAPI', 1),
+('MySQL', 1),
+('前端', 1),
+('后端', 1)
 ON DUPLICATE KEY UPDATE name = name;
 
 -- 插入示例文章
@@ -168,10 +162,6 @@ INSERT INTO article_tags (article_id, tag_id) VALUES
 (1, 1), (1, 2), (1, 3)
 ON DUPLICATE KEY UPDATE article_id = article_id;
 
--- 插入示例评论
-INSERT INTO comments (content, article_id, user_id) VALUES 
-('这个博客系统很不错！', 1, 2)
-ON DUPLICATE KEY UPDATE content = content;
 
 -- =====================================================
 -- 完成

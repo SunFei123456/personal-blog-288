@@ -78,8 +78,8 @@ def login(user_in: UserLogin, db: Session = Depends(get_db)):
             detail="用户名或密码错误",
         )
     
-    # 生成 Token
-    access_token = create_access_token(data={"sub": user.id})
+    # 生成 Token（sub 必须是字符串）
+    access_token = create_access_token(data={"sub": str(user.id)})
     
     return Token(
         access_token=access_token,

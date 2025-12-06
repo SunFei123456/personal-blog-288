@@ -77,8 +77,14 @@ async function fetchArticles() {
  * 获取分类列表
  */
 async function fetchCategories() {
+  // 未登录时不获取分类
+  if (!isLoggedIn.value || !currentUserId.value) {
+    categories.value = []
+    return
+  }
+  
   try {
-    categories.value = await getCategoriesApi()
+    categories.value = await getCategoriesApi(currentUserId.value)
   } catch (error) {
     console.error('获取分类列表失败:', error)
   }
@@ -88,8 +94,14 @@ async function fetchCategories() {
  * 获取标签列表
  */
 async function fetchTags() {
+  // 未登录时不获取标签
+  if (!isLoggedIn.value || !currentUserId.value) {
+    tags.value = []
+    return
+  }
+  
   try {
-    tags.value = await getTagsApi()
+    tags.value = await getTagsApi(currentUserId.value)
   } catch (error) {
     console.error('获取标签列表失败:', error)
   }

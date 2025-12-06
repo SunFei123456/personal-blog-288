@@ -129,7 +129,7 @@ def get_article(
         )
     
     # 草稿文章权限检查
-    if article.status == ArticleStatus.DRAFT:
+    if article.status == ArticleStatus.draft:
         if not current_user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

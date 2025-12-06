@@ -5,10 +5,15 @@
  * - 新建/编辑/删除分类
  */
 
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { getCategoriesApi, createCategoryApi, updateCategoryApi, deleteCategoryApi } from '@/api/category'
+import { useUserStore } from '@/stores/user'
 import type { Category } from '@/types'
 import { Plus, Edit, Trash2, X, Loader2 } from 'lucide-vue-next'
+
+/** 用户状态 */
+const userStore = useUserStore()
+const currentUserId = computed(() => userStore.user?.id)
 
 /** 分类列表 */
 const categories = ref<Category[]>([])
@@ -31,7 +36,8 @@ const form = reactive({
 async function fetchCategories() {
   loading.value = true
   try {
-    categories.value = await getCategoriesApi()
+    // 只获取当前用户的分类
+    categories.value = await getCategoriesApi(currentUserId.value)
   } catch (error) {
     console.error('获取分类列表失败:', error)
   } finally {

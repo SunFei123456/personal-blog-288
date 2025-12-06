@@ -7,4 +7,3 @@ from app.models.user import User, UserRole
 from app.models.category import Category
 from app.models.tag import Tag, article_tags
 from app.models.article import Article, ArticleStatus
-from app.models.comment import Comment

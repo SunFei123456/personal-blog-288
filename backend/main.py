@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1 import api_router
 from app.db.database import engine, Base
-from app.models import User, Category, Tag, Article, Comment  # 导入所有模型以创建表
+from app.models import User, Category, Tag, Article  # 导入所有模型以创建表
 
 
 # 创建数据库表

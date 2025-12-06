@@ -42,4 +42,3 @@ class User(Base):
     
     # 关联关系
     articles = relationship("Article", back_populates="author", cascade="all, delete-orphan")
-    comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")

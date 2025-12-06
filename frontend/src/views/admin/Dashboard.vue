@@ -9,13 +9,12 @@ import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { getStatisticsApi } from '@/api/admin'
 import type { Statistics } from '@/types'
-import { Users, FileText, MessageSquare, Eye, Plus, Settings } from 'lucide-vue-next'
+import { Users, FileText, Eye, Plus, Settings } from 'lucide-vue-next'
 
 /** 统计数据 */
 const statistics = ref<Statistics>({
   user_count: 0,
   article_count: 0,
-  comment_count: 0,
   view_count: 0,
 })
 const loading = ref(true)
@@ -37,7 +36,6 @@ async function fetchStatistics() {
 const statCards = [
   { key: 'user_count', label: '用户总数', icon: Users, color: 'blue' },
   { key: 'article_count', label: '文章总数', icon: FileText, color: 'green' },
-  { key: 'comment_count', label: '评论总数', icon: MessageSquare, color: 'purple' },
   { key: 'view_count', label: '总浏览量', icon: Eye, color: 'orange' },
 ]
 

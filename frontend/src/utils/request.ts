@@ -54,9 +54,10 @@ request.interceptors.response.use(
     if (response) {
       switch (response.status) {
         case 401:
-          // Token 过期或无效，清除登录状态并跳转登录页
-          localStorage.removeItem('token')
-          router.push('/login')
+          // Token 过期或无效
+          // 注意：不在这里清除 token 和跳转，让路由守卫统一处理
+          // 避免在 fetchUserInfo 时误清除刚保存的 token
+          console.error('认证失败，请重新登录')
           break
         case 403:
           console.error('没有权限访问该资源')

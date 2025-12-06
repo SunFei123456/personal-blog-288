@@ -8,10 +8,11 @@ import type { Category, CategoryRequest } from '@/types'
 
 /**
  * 获取分类列表
+ * @param userId - 可选，用户ID，筛选指定用户的分类
  * @returns 分类列表
  */
-export function getCategoriesApi(): Promise<Category[]> {
-  return get<Category[]>('/categories')
+export function getCategoriesApi(userId?: number): Promise<Category[]> {
+  return get<Category[]>('/categories', { params: userId ? { user_id: userId } : {} })
 }
 
 /**

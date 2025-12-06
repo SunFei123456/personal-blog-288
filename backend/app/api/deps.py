@@ -14,8 +14,23 @@ from app.core.security import decode_access_token
 from app.models.user import User, UserRole
 
 
-# HTTP Bearer 认证
-security = HTTPBearer()
+# HTTP Bearer 认证（配置为返回 401）
+security = HTTPBearer(auto_error=False)
+
+
+def get_credentials(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+) -> HTTPAuthorizationCredentials:
+    """
+    获取认证凭证，未提供时返回 401
+    """
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return credentials
 
 
 def get_db() -> Generator:
@@ -33,7 +48,7 @@ def get_db() -> Generator:
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
     """
@@ -49,8 +64,19 @@ def get_current_user(
     Raises:
         HTTPException: 认证失败
     """
+    # 检查是否提供了认证凭证
+    if credentials is None:
+        print("[AUTH DEBUG] No credentials provided")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     token = credentials.credentials
+    print(f"[AUTH DEBUG] Token received: {token[:20]}..." if len(token) > 20 else f"[AUTH DEBUG] Token: {token}")
     payload = decode_access_token(token)
+    print(f"[AUTH DEBUG] Payload: {payload}")
     
     if payload is None:
         raise HTTPException(
@@ -59,11 +85,21 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    user_id: int = payload.get("sub")
-    if user_id is None:
+    user_id_str = payload.get("sub")
+    if user_id_str is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="无效的认证凭证",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # 将字符串转换为整数
+    try:
+        user_id = int(user_id_str)
+    except (ValueError, TypeError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="无效的用户ID",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
@@ -102,8 +138,13 @@ def get_current_user_optional(
     if payload is None:
         return None
     
-    user_id: int = payload.get("sub")
-    if user_id is None:
+    user_id_str = payload.get("sub")
+    if user_id_str is None:
+        return None
+    
+    try:
+        user_id = int(user_id_str)
+    except (ValueError, TypeError):
         return None
     
     user = db.query(User).filter(User.id == user_id).first()

@@ -26,11 +26,7 @@ from app.schemas.article import (
     ArticleResponse,
     ArticleListResponse,
 )
-from app.schemas.comment import (
-    CommentCreate,
-    CommentResponse,
-    CommentListResponse,
-)
+
 from app.schemas.common import (
     Statistics,
     MessageResponse,

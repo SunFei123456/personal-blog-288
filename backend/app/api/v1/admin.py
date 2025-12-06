@@ -12,9 +12,7 @@ from sqlalchemy import func
 from app.api.deps import get_db, get_current_admin_user
 from app.models.user import User, UserRole
 from app.models.article import Article
-from app.models.comment import Comment
 from app.schemas.user import UserResponse, UserUpdate
-from app.schemas.comment import CommentResponse, CommentListResponse
 from app.schemas.common import Statistics
 
 
@@ -31,13 +29,11 @@ def get_statistics(
     """
     user_count = db.query(func.count(User.id)).scalar()
     article_count = db.query(func.count(Article.id)).scalar()
-    comment_count = db.query(func.count(Comment.id)).scalar()
     view_count = db.query(func.sum(Article.view_count)).scalar() or 0
     
     return Statistics(
         user_count=user_count,
         article_count=article_count,
-        comment_count=comment_count,
         view_count=view_count,
     )
 
@@ -151,28 +147,3 @@ def delete_user(
     
     return {"message": "用户已删除"}
 
-
-@router.get("/comments", response_model=CommentListResponse, summary="获取所有评论")
-def get_all_comments(
-    page: int = Query(1, ge=1, description="页码"),
-    page_size: int = Query(20, ge=1, le=100, description="每页数量"),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_admin_user),
-):
-    """
-    获取所有评论列表（管理员）
-    """
-    query = db.query(Comment).options(joinedload(Comment.user))
-    
-    total = query.count()
-    total_pages = ceil(total / page_size)
-    
-    comments = query.order_by(Comment.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
-    
-    return CommentListResponse(
-        items=[CommentResponse.model_validate(c) for c in comments],
-        total=total,
-        page=page,
-        page_size=page_size,
-        total_pages=total_pages,
-    )

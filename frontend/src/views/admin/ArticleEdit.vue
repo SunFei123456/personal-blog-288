@@ -13,11 +13,16 @@ import 'md-editor-v3/lib/style.css'
 import { getArticleApi, createArticleApi, updateArticleApi } from '@/api/article'
 import { getCategoriesApi } from '@/api/category'
 import { getTagsApi } from '@/api/tag'
+import { useUserStore } from '@/stores/user'
 import type { Category, Tag, ArticleStatus } from '@/types'
 import { Save, ArrowLeft, Loader2, Settings } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
+
+/** 当前用户ID */
+const currentUserId = computed(() => userStore.user?.id)
 
 /** 文章ID（编辑模式） */
 const articleId = computed(() => route.params.id ? parseInt(route.params.id as string) : null)
@@ -74,7 +79,8 @@ async function fetchArticle() {
  */
 async function fetchCategories() {
   try {
-    categories.value = await getCategoriesApi()
+    // 只获取当前用户的分类
+    categories.value = await getCategoriesApi(currentUserId.value)
   } catch (error) {
     console.error('获取分类列表失败:', error)
   }
@@ -85,7 +91,8 @@ async function fetchCategories() {
  */
 async function fetchTags() {
   try {
-    tags.value = await getTagsApi()
+    // 只获取当前用户的标签
+    tags.value = await getTagsApi(currentUserId.value)
   } catch (error) {
     console.error('获取标签列表失败:', error)
   }

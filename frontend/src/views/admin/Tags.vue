@@ -5,10 +5,15 @@
  * - 新建/删除标签
  */
 
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getTagsApi, createTagApi, deleteTagApi } from '@/api/tag'
+import { useUserStore } from '@/stores/user'
 import type { Tag } from '@/types'
 import { Plus, X, Loader2 } from 'lucide-vue-next'
+
+/** 用户状态 */
+const userStore = useUserStore()
+const currentUserId = computed(() => userStore.user?.id)
 
 /** 标签列表 */
 const tags = ref<Tag[]>([])
@@ -24,7 +29,8 @@ const creating = ref(false)
 async function fetchTags() {
   loading.value = true
   try {
-    tags.value = await getTagsApi()
+    // 只获取当前用户的标签
+    tags.value = await getTagsApi(currentUserId.value)
   } catch (error) {
     console.error('获取标签列表失败:', error)
   } finally {
