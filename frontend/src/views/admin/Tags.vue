@@ -76,58 +76,83 @@ onMounted(fetchTags)
 <template>
   <div>
     <!-- 页面标题 -->
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">标签管理</h1>
-
-    <!-- 新建标签 -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">新建标签</h2>
-      <form @submit.prevent="handleCreate" class="flex gap-4">
-        <input
-          v-model="newTagName"
-          type="text"
-          placeholder="请输入标签名称"
-          class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-        />
-        <button
-          type="submit"
-          :disabled="creating"
-          class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-        >
-          <Loader2 v-if="creating" class="w-4 h-4 animate-spin" />
-          <Plus v-else class="w-4 h-4" />
-          {{ creating ? '创建中...' : '创建' }}
-        </button>
-      </form>
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">标签管理</h1>
+        <p class="text-sm text-gray-500 mt-1">管理文章标签云</p>
+      </div>
     </div>
 
-    <!-- 加载状态 -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-    </div>
-
-    <!-- 标签列表 -->
-    <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">标签列表</h2>
-      
-      <div v-if="tags.length > 0" class="flex flex-wrap gap-3">
-        <div
-          v-for="tag in tags"
-          :key="tag.id"
-          class="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full group"
-        >
-          <span class="text-gray-700">{{ tag.name }}</span>
-          <span class="text-gray-400 text-sm">({{ tag.article_count || 0 }})</span>
-          <button
-            @click="handleDelete(tag)"
-            class="p-1 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
-            title="删除标签"
-          >
-            <X class="w-4 h-4" />
-          </button>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- 新建标签 -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
+          <h2 class="text-lg font-bold text-gray-900 mb-4">新建标签</h2>
+          <form @submit.prevent="handleCreate" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">标签名称</label>
+              <input
+                v-model="newTagName"
+                type="text"
+                placeholder="例如：Vue3"
+                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+              />
+            </div>
+            <button
+              type="submit"
+              :disabled="creating"
+              class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 disabled:opacity-70 transition-all shadow-lg shadow-indigo-200"
+            >
+              <Loader2 v-if="creating" class="w-4 h-4 animate-spin" />
+              <Plus v-else class="w-4 h-4" />
+              {{ creating ? '创建中...' : '创建标签' }}
+            </button>
+          </form>
         </div>
       </div>
 
-      <p v-else class="text-gray-500 text-center py-8">暂无标签</p>
+      <!-- 标签列表 -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 min-h-[400px]">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-gray-900">全部标签</h2>
+            <span class="text-sm text-gray-500">共 {{ tags.length }} 个标签</span>
+          </div>
+          
+          <!-- 加载状态 -->
+          <div v-if="loading" class="flex flex-col items-center justify-center py-12 text-gray-400">
+            <div class="w-8 h-8 border-4 border-indigo-100 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
+            <p class="text-sm">加载中...</p>
+          </div>
+
+          <div v-else-if="tags.length > 0" class="flex flex-wrap gap-3">
+            <div
+              v-for="tag in tags"
+              :key="tag.id"
+              class="group relative flex items-center gap-2 pl-4 pr-2 py-2 bg-gray-50 hover:bg-indigo-50 text-gray-700 hover:text-indigo-700 rounded-xl transition-all border border-transparent hover:border-indigo-100"
+            >
+              <span class="font-medium">{{ tag.name }}</span>
+              <span class="bg-white/50 px-1.5 py-0.5 rounded text-xs text-gray-400 group-hover:text-indigo-500 transition-colors">
+                {{ tag.article_count || 0 }}
+              </span>
+              <button
+                @click="handleDelete(tag)"
+                class="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all ml-1"
+                title="删除标签"
+              >
+                <X class="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          <div v-else class="flex flex-col items-center justify-center py-16 text-gray-400">
+            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+              <Plus class="w-8 h-8 text-gray-300" />
+            </div>
+            <p>暂无标签，请在左侧创建</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

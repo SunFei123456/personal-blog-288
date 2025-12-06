@@ -6,9 +6,10 @@
  * - 分页功能
  */
 
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { getArticlesApi } from '@/api/article'
+import { useUserStore } from '@/stores/user'
 import { getCategoriesApi } from '@/api/category'
 import { getTagsApi } from '@/api/tag'
 import type { Article, Category, Tag, PaginatedResponse } from '@/types'
@@ -16,6 +17,11 @@ import { Calendar, Eye, FolderOpen, Tag as TagIcon, ChevronLeft, ChevronRight } 
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
+
+/** 当前用户信息 */
+const isLoggedIn = computed(() => userStore.isLoggedIn)
+const currentUserId = computed(() => userStore.user?.id)
 
 /** 文章列表数据 */
 const articles = ref<Article[]>([])
@@ -43,12 +49,20 @@ function formatDate(dateStr: string): string {
  * 获取文章列表
  */
 async function fetchArticles() {
+  // 未登录时不获取文章
+  if (!isLoggedIn.value || !currentUserId.value) {
+    articles.value = []
+    loading.value = false
+    return
+  }
+  
   loading.value = true
   try {
     const response = await getArticlesApi({
       page: currentPage.value,
       page_size: 10,
       status: 'published',
+      user_id: currentUserId.value, // 只获取当前用户的文章
     })
     articles.value = response.items
     totalPages.value = response.total_pages
@@ -114,7 +128,7 @@ onMounted(() => {
       <!-- 主内容区 -->
       <div class="flex-1">
         <!-- 页面标题 -->
-        <h1 class="text-3xl font-bold text-gray-900 mb-8">最新文章</h1>
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">我的文章</h1>
 
         <!-- 加载状态 -->
         <div v-if="loading" class="text-center py-12">
@@ -171,9 +185,26 @@ onMounted(() => {
           </article>
         </div>
 
+        <!-- 未登录提示 -->
+        <div v-else-if="!isLoggedIn" class="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
+          <p class="text-gray-500 mb-4">请先登录查看您的文章</p>
+          <RouterLink
+            to="/login"
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
+          >
+            去登录
+          </RouterLink>
+        </div>
+
         <!-- 空状态 -->
-        <div v-else class="text-center py-12">
-          <p class="text-gray-500">暂无文章</p>
+        <div v-else class="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
+          <p class="text-gray-500 mb-4">您还没有发布任何文章</p>
+          <RouterLink
+            to="/admin/articles/edit"
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
+          >
+            写第一篇文章
+          </RouterLink>
         </div>
 
         <!-- 分页 -->

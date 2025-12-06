@@ -11,7 +11,7 @@ import { RouterLink } from 'vue-router'
 import { getMyArticlesApi, deleteArticleApi } from '@/api/article'
 import { useUserStore } from '@/stores/user'
 import type { Article, ArticleStatus } from '@/types'
-import { Plus, Edit, Trash2, Eye, Calendar, Filter } from 'lucide-vue-next'
+import { Plus, Edit, Trash2, Eye, Calendar, Filter, FileText } from 'lucide-vue-next'
 
 const userStore = useUserStore()
 
@@ -79,11 +79,14 @@ onMounted(fetchArticles)
 <template>
   <div>
     <!-- 页面头部 -->
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">文章管理</h1>
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">文章管理</h1>
+        <p class="text-sm text-gray-500 mt-1">管理和发布你的博客文章</p>
+      </div>
       <RouterLink
         to="/admin/articles/edit"
-        class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 font-medium"
       >
         <Plus class="w-4 h-4" />
         写文章
@@ -91,84 +94,103 @@ onMounted(fetchArticles)
     </div>
 
     <!-- 筛选栏 -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
-      <div class="flex items-center gap-4">
-        <Filter class="w-5 h-5 text-gray-400" />
-        <select
-          v-model="filterStatus"
-          @change="fetchArticles"
-          class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+    <div class="bg-white rounded-2xl p-2 mb-6 shadow-sm border border-gray-100 flex items-center justify-between">
+      <div class="flex items-center gap-2 p-1 bg-gray-50/80 rounded-xl">
+        <button
+          @click="() => { filterStatus = ''; fetchArticles() }"
+          class="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+          :class="!filterStatus ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
         >
-          <option value="">全部状态</option>
-          <option value="published">已发布</option>
-          <option value="draft">草稿</option>
-        </select>
+          全部
+        </button>
+        <button
+          @click="() => { filterStatus = 'published'; fetchArticles() }"
+          class="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+          :class="filterStatus === 'published' ? 'bg-white text-green-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+        >
+          已发布
+        </button>
+        <button
+          @click="() => { filterStatus = 'draft'; fetchArticles() }"
+          class="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+          :class="filterStatus === 'draft' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+        >
+          草稿箱
+        </button>
+      </div>
+      
+      <div class="px-4 text-sm text-gray-400">
+        共 {{ filteredArticles.length }} 篇文章
       </div>
     </div>
 
     <!-- 加载状态 -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+    <div v-if="loading" class="flex flex-col items-center justify-center py-20 text-gray-400">
+      <div class="w-10 h-10 border-4 border-indigo-100 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
+      <p class="text-sm">加载中...</p>
     </div>
 
     <!-- 文章列表 -->
-    <div v-else-if="filteredArticles.length > 0" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div v-else-if="filteredArticles.length > 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <table class="w-full">
-        <thead class="bg-gray-50 border-b border-gray-100">
+        <thead class="bg-gray-50/50">
           <tr>
-            <th class="text-left px-6 py-4 text-sm font-medium text-gray-500">标题</th>
-            <th class="text-left px-6 py-4 text-sm font-medium text-gray-500">状态</th>
-            <th class="text-left px-6 py-4 text-sm font-medium text-gray-500">浏览量</th>
-            <th class="text-left px-6 py-4 text-sm font-medium text-gray-500">创建时间</th>
-            <th class="text-right px-6 py-4 text-sm font-medium text-gray-500">操作</th>
+            <th class="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">标题</th>
+            <th class="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">状态</th>
+            <th class="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">数据</th>
+            <th class="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">创建时间</th>
+            <th class="text-right px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">操作</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
-          <tr v-for="article in filteredArticles" :key="article.id" class="hover:bg-gray-50">
+        <tbody class="divide-y divide-gray-50">
+          <tr v-for="article in filteredArticles" :key="article.id" class="group hover:bg-gray-50/80 transition-colors">
             <td class="px-6 py-4">
-              <RouterLink
-                :to="`/article/${article.id}`"
-                class="text-gray-900 hover:text-blue-600 font-medium"
-                target="_blank"
-              >
-                {{ article.title }}
-              </RouterLink>
+              <div class="flex flex-col">
+                <RouterLink
+                  :to="`/article/${article.id}`"
+                  class="text-gray-900 font-medium hover:text-indigo-600 transition-colors line-clamp-1"
+                  target="_blank"
+                >
+                  {{ article.title }}
+                </RouterLink>
+                <span class="text-xs text-gray-400 mt-1 line-clamp-1">{{ article.summary || '暂无摘要' }}</span>
+              </div>
             </td>
             <td class="px-6 py-4">
               <span
-                class="px-2 py-1 text-xs rounded-full"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border"
                 :class="{
-                  'bg-green-100 text-green-600': article.status === 'published',
-                  'bg-gray-100 text-gray-600': article.status === 'draft',
+                  'bg-green-50 text-green-700 border-green-100': article.status === 'published',
+                  'bg-orange-50 text-orange-700 border-orange-100': article.status === 'draft',
                 }"
               >
+                <span class="w-1.5 h-1.5 rounded-full" :class="article.status === 'published' ? 'bg-green-500' : 'bg-orange-500'"></span>
                 {{ article.status === 'published' ? '已发布' : '草稿' }}
               </span>
             </td>
-            <td class="px-6 py-4 text-gray-500">
-              <span class="flex items-center gap-1">
-                <Eye class="w-4 h-4" />
-                {{ article.view_count }}
-              </span>
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-4 text-gray-400 text-sm">
+                <span class="flex items-center gap-1.5" title="浏览量">
+                  <Eye class="w-4 h-4" />
+                  {{ article.view_count }}
+                </span>
+              </div>
             </td>
-            <td class="px-6 py-4 text-gray-500">
-              <span class="flex items-center gap-1">
-                <Calendar class="w-4 h-4" />
-                {{ formatDate(article.created_at) }}
-              </span>
+            <td class="px-6 py-4 text-sm text-gray-500">
+              {{ formatDate(article.created_at) }}
             </td>
             <td class="px-6 py-4">
-              <div class="flex items-center justify-end gap-2">
+              <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <RouterLink
                   :to="`/admin/articles/edit/${article.id}`"
-                  class="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                  class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                   title="编辑"
                 >
                   <Edit class="w-4 h-4" />
                 </RouterLink>
                 <button
                   @click="handleDelete(article)"
-                  class="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                  class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                   title="删除"
                 >
                   <Trash2 class="w-4 h-4" />
@@ -181,11 +203,15 @@ onMounted(fetchArticles)
     </div>
 
     <!-- 空状态 -->
-    <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-      <p class="text-gray-500 mb-4">暂无文章</p>
+    <div v-else class="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center">
+      <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <FileText class="w-8 h-8 text-gray-300" />
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-1">暂无文章</h3>
+      <p class="text-gray-500 mb-6">开始创作你的第一篇博客文章吧</p>
       <RouterLink
         to="/admin/articles/edit"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-medium shadow-sm"
       >
         <Plus class="w-4 h-4" />
         写第一篇文章

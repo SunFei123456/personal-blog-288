@@ -65,11 +65,17 @@ onMounted(fetchComments)
 <template>
   <div>
     <!-- 页面标题 -->
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">评论管理</h1>
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">评论管理</h1>
+        <p class="text-sm text-gray-500 mt-1">管理用户发表的评论</p>
+      </div>
+    </div>
 
     <!-- 加载状态 -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+    <div v-if="loading" class="flex flex-col items-center justify-center py-20 text-gray-400">
+      <div class="w-10 h-10 border-4 border-indigo-100 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
+      <p class="text-sm">加载中...</p>
     </div>
 
     <!-- 评论列表 -->
@@ -77,34 +83,41 @@ onMounted(fetchComments)
       <div
         v-for="comment in comments"
         :key="comment.id"
-        class="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
+        class="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all"
       >
-        <div class="flex items-start justify-between">
+        <div class="flex items-start justify-between gap-4">
           <div class="flex-1">
             <!-- 评论者信息 -->
-            <div class="flex items-center gap-4 text-sm text-gray-500 mb-3">
-              <span class="flex items-center gap-1">
-                <User class="w-4 h-4" />
+            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 mb-3">
+              <span class="flex items-center gap-1.5 font-medium text-gray-900 bg-gray-50 px-2 py-1 rounded-lg">
+                <User class="w-4 h-4 text-indigo-500" />
                 {{ comment.user?.username || '匿名用户' }}
               </span>
-              <span class="flex items-center gap-1">
-                <Calendar class="w-4 h-4" />
+              <span class="flex items-center gap-1.5 text-xs">
+                <Calendar class="w-3.5 h-3.5" />
                 {{ formatDate(comment.created_at) }}
               </span>
-              <span class="flex items-center gap-1">
-                <FileText class="w-4 h-4" />
-                文章ID: {{ comment.article_id }}
-              </span>
+              <RouterLink 
+                :to="`/article/${comment.article_id}`" 
+                target="_blank"
+                class="flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-2 py-1 rounded-lg transition-colors"
+              >
+                <FileText class="w-3.5 h-3.5" />
+                查看文章
+              </RouterLink>
             </div>
 
             <!-- 评论内容 -->
-            <p class="text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
+            <div class="relative">
+              <div class="absolute left-0 top-0 bottom-0 w-1 bg-gray-100 rounded-full"></div>
+              <p class="text-gray-700 whitespace-pre-wrap pl-4 leading-relaxed">{{ comment.content }}</p>
+            </div>
           </div>
 
           <!-- 删除按钮 -->
           <button
             @click="handleDelete(comment)"
-            class="p-2 text-gray-400 hover:text-red-600 transition-colors"
+            class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
             title="删除评论"
           >
             <Trash2 class="w-5 h-5" />
@@ -114,7 +127,10 @@ onMounted(fetchComments)
     </div>
 
     <!-- 空状态 -->
-    <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+    <div v-else class="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center">
+      <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <FileText class="w-8 h-8 text-gray-300" />
+      </div>
       <p class="text-gray-500">暂无评论</p>
     </div>
   </div>

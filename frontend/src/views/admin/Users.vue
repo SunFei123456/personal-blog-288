@@ -89,62 +89,76 @@ onMounted(fetchUsers)
 <template>
   <div>
     <!-- 页面标题 -->
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">用户管理</h1>
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">用户管理</h1>
+        <p class="text-sm text-gray-500 mt-1">管理注册用户和权限</p>
+      </div>
+    </div>
 
     <!-- 加载状态 -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+    <div v-if="loading" class="flex flex-col items-center justify-center py-20 text-gray-400">
+      <div class="w-10 h-10 border-4 border-indigo-100 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
+      <p class="text-sm">加载中...</p>
     </div>
 
     <!-- 用户列表 -->
-    <div v-else-if="users.length > 0" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div v-else-if="users.length > 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <table class="w-full">
-        <thead class="bg-gray-50 border-b border-gray-100">
+        <thead class="bg-gray-50/50">
           <tr>
-            <th class="text-left px-6 py-4 text-sm font-medium text-gray-500">ID</th>
-            <th class="text-left px-6 py-4 text-sm font-medium text-gray-500">用户名</th>
-            <th class="text-left px-6 py-4 text-sm font-medium text-gray-500">邮箱</th>
-            <th class="text-left px-6 py-4 text-sm font-medium text-gray-500">角色</th>
-            <th class="text-left px-6 py-4 text-sm font-medium text-gray-500">注册时间</th>
-            <th class="text-right px-6 py-4 text-sm font-medium text-gray-500">操作</th>
+            <th class="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">用户</th>
+            <th class="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">邮箱</th>
+            <th class="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">角色</th>
+            <th class="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">注册时间</th>
+            <th class="text-right px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">操作</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
-          <tr v-for="user in users" :key="user.id" class="hover:bg-gray-50">
-            <td class="px-6 py-4 text-gray-500">{{ user.id }}</td>
-            <td class="px-6 py-4 font-medium text-gray-900">
-              {{ user.username }}
-              <span v-if="user.id === userStore.user?.id" class="ml-2 text-xs text-blue-600">(我)</span>
+        <tbody class="divide-y divide-gray-50">
+          <tr v-for="user in users" :key="user.id" class="group hover:bg-gray-50/80 transition-colors">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-600 font-bold text-xs border-2 border-white shadow-sm">
+                  {{ user.username.charAt(0).toUpperCase() }}
+                </div>
+                <div>
+                  <div class="font-medium text-gray-900 flex items-center gap-2">
+                    {{ user.username }}
+                    <span v-if="user.id === userStore.user?.id" class="px-1.5 py-0.5 rounded text-[10px] bg-indigo-50 text-indigo-600 font-medium border border-indigo-100">YOU</span>
+                  </div>
+                  <div class="text-xs text-gray-400">ID: {{ user.id }}</div>
+                </div>
+              </div>
             </td>
             <td class="px-6 py-4 text-gray-500">
-              <span class="flex items-center gap-1">
-                <Mail class="w-4 h-4" />
+              <span class="flex items-center gap-1.5 text-sm">
+                <Mail class="w-3.5 h-3.5 text-gray-400" />
                 {{ user.email }}
               </span>
             </td>
             <td class="px-6 py-4">
               <span
-                class="px-2 py-1 text-xs rounded-full"
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
                 :class="{
-                  'bg-blue-100 text-blue-600': user.role === 'admin',
-                  'bg-gray-100 text-gray-600': user.role === 'user',
+                  'bg-indigo-50 text-indigo-700 border-indigo-100': user.role === 'admin',
+                  'bg-gray-50 text-gray-600 border-gray-100': user.role === 'user',
                 }"
               >
                 {{ user.role === 'admin' ? '管理员' : '普通用户' }}
               </span>
             </td>
             <td class="px-6 py-4 text-gray-500">
-              <span class="flex items-center gap-1">
-                <Calendar class="w-4 h-4" />
+              <span class="flex items-center gap-1.5 text-sm">
+                <Calendar class="w-3.5 h-3.5 text-gray-400" />
                 {{ formatDate(user.created_at) }}
               </span>
             </td>
             <td class="px-6 py-4">
-              <div class="flex items-center justify-end gap-2">
+              <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   @click="toggleRole(user)"
                   :disabled="user.id === userStore.user?.id"
-                  class="p-2 text-gray-400 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   :title="user.role === 'admin' ? '取消管理员' : '设为管理员'"
                 >
                   <Shield v-if="user.role === 'user'" class="w-4 h-4" />
@@ -153,7 +167,7 @@ onMounted(fetchUsers)
                 <button
                   @click="handleDelete(user)"
                   :disabled="user.id === userStore.user?.id"
-                  class="p-2 text-gray-400 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   title="删除用户"
                 >
                   <Trash2 class="w-4 h-4" />
@@ -166,7 +180,10 @@ onMounted(fetchUsers)
     </div>
 
     <!-- 空状态 -->
-    <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+    <div v-else class="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center">
+      <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <Shield class="w-8 h-8 text-gray-300" />
+      </div>
       <p class="text-gray-500">暂无用户</p>
     </div>
   </div>
