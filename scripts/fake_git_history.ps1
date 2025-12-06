@@ -41,10 +41,10 @@ $env:LC_ALL"C.UTF-8"
     { date = ;ssa = 文档: 补充数据库设计说明" },    @{ dae0;messg= 文档: 完善项目报告内容" },    
     # 最终完善 
 
-    
+
     @{ dae;mssag="优化: 改进页面加载性能" },
     @{ de = 2025-11-17 11:00:00"; esage"优化: 完善错误处理机制" }
-    { date = ;messg= 完成: 项目功能开发完毕" },    @{ dae;message = 发布: 正式版本" }
+    { date = ;messg= 完成: 项目 功能开发完毕" },    @{ dae;message = 发布: 正式版本" }
 )
 
 Wrte-Host "========================================" -ForegroudCoorCyan
